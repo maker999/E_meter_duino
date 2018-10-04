@@ -1,26 +1,28 @@
 #include "Arduino.h"
 #include "crypto_diffie_hellman.h"
-
-#include <atca_basic.h>
-#include <atca_cfgs.h>
-#include <atca_command.h>
-#include <atca_compiler.h>
-#include <atca_crypto_sw.h>
-#include <atca_crypto_sw_sha2.h>
-#include <atca_device.h>
-#include <atca_devtypes.h>
-#include <atca_hal.h>
-#include <atca_helpers.h>
-#include <atca_host.h>
-#include <atca_iface.h>
-#include <atca_start_config.h>
-#include <atca_start_iface.h>
-#include <atca_status.h>
-#include <cryptoauthlib.h>
-#include <hal_i2c_bitbang.h>
+/*
+#include "lib/basic/atca_basic.h"
+#include "lib/atca_cfgs.h"
+#include "lib/atca_command.h"
+#include "lib/atca_compiler.h"
+#include "lib/crypto/atca_crypto_sw.h"
+#include "lib/crypto/atca_crypto_sw_sha2.h"
+#include "lib/atca_device.h"
+#include "lib/atca_devtypes.h"
+#include "lib/hal/atca_hal.h"
+#include "lib/basic/atca_helpers.h"
+#include "lib/host/atca_host.h"
+#include "lib/atca_iface.h"
+#include "lib/hal/atca_start_config.h"
+#include "lib/hal/atca_start_iface.h"
+#include "lib/atca_status.h"
+#include "lib/cryptoauthlib.h"
+#include "lib/hal/hal_i2c_bitbang.h"
 #include <i2c_bitbang_at88ck9000.h>
-#include <sha2_routines.h>
+#include "lib/crypto/hashes/sha2_routines.h"
 #include <uECC.h>
+*/
+
 
 /*#define uECC_OPTIMIZATION_LEVEL 3
 #define uECC_PLATFORM   uECC_arm
@@ -36,6 +38,15 @@ uint8_t uECC_RNG_ZEROIZE[32] = {0x00};
 int pubKeyHostCnt = 0;
 
 ATCAIfaceCfg *gCfg = &cfg_ateccx08a_i2c_default;
+/*
+ATCAIfaceCfg gCfg = {.iface_type = ATCA_I2C_IFACE,
+                      .devtype = ATECC508A,
+                      .atcai2c.slave_address = 0xC0,
+                      .atcai2c.bus = 0,
+                      .atcai2c.baud = 400000,
+                      .wake_delay = 1500,
+                      .rx_retries = 20
+};*/
 uint8_t buffer[64];
 ATCA_STATUS status = ATCA_GEN_FAIL;
 
@@ -58,7 +69,7 @@ static int TRNG_fromSeed(uint8_t *dest, unsigned size) {
   return 1;
 }
 
-
+/*
 static int TRNG(uint8_t *dest, unsigned size) {
   uint8_t rand_out[RANDOM_RSP_SIZE];
   status = atcab_init( gCfg );
@@ -71,60 +82,6 @@ static int TRNG(uint8_t *dest, unsigned size) {
 }
 
 
-uint8_t* secretHost() {
-  
-
-    /* Simulate to endpoints exchanging keys
-     *  using the Diffie-Hellman method
-     */
-
-    uint8_t ecc_privKeyASM[32];
-    uint8_t ecc_privKeyHost[32];
-    uint8_t ecc_pubKeyASM[64];
-
-    
-    uint8_t ecdh_secretHost[32];
-
-    uECC_set_rng(&TRNG_fromSeed);
-    //uECC_set_rng(&TRNG);
-
-    /* Select the right elliptic curvve type */
-    const struct uECC_Curve_t * curve = uECC_secp256r1();
-    
-    /* Create private and public key for a host system and
-     *  an IoT endpoint device
-     */
-     
-    
-    uECC_make_key(ecc_pubKeyHost, ecc_privKeyHost, curve);
-
-    /* Create the shared secrets. Keep in mind that this happens
-     *  normally on two fifferent devices and only the public keys are exchanged
-     */
-     
-    
-    uECC_shared_secret(ecc_pubKeyASM, ecc_privKeyHost, ecdh_secretHost, curve);
-
-
-    /* Print out the two independently produced secrets and check
-     *  them to be equal
-     */
-     /*		
-    for (int i = 0; i < 32; i++){ 
-       static char tmp[4] = {};
-       sprintf(tmp, "%02X", ecdh_secretASM[i]);
-       Serial.print(String(tmp));
-    }
-
-    for (int i = 0; i < 32; i++){ 
-       static char tmp[4] = {};
-       sprintf(tmp, "%02X", ecdh_secretHost[i]);
-       Serial.print(String(tmp));
-    } */
-
-    return ecdh_secretHost;
-}
-
 uint8_t* secretASM() {
 	uint8_t ecc_privKeyASM[32];
 	uint8_t ecdh_secretASM[32];
@@ -134,5 +91,17 @@ uint8_t* secretASM() {
 	uECC_make_key(ecc_pubKeyASM, ecc_privKeyASM, curve);
 	uECC_shared_secret(ecc_pubKeyHost, ecc_privKeyASM, ecdh_secretASM, curve);
 	return &ecdh_secretASM[0];
+}*/
+
+boolean testit(){
+  status = atcab_init(gCfg);
+ if(status != ATCA_SUCCESS) {
+   return false;
+ }  
+ return true;
+ //status = atcab_random(buffer);
+ //if(status != ATCA_SUCCESS) {
+ //  return false;
+ //}
 }
 

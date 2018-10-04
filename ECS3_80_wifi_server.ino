@@ -117,11 +117,16 @@ unsigned int regs_2[6];
 //------------------------------end-of-modbus-stuff
 
 
+uint8_t buf[65] = {0};
+
+
 void setup() {
   Serial1.begin(115200);
   //Serial2.begin(9600);
   
   pinMode(connection_error_led, OUTPUT);
+  
+  dev_i2c.begin();
   
   packet1->id = 1;
   packet1->function = READ_HOLDING_REGISTERS;
@@ -157,12 +162,43 @@ void setup() {
   
   while (!Serial1) {
     ; // wait for serial port to connect. Needed for native USB port only
-  }
+  } Serial1.println("--------------------------------------------------------------");
+
   
-  
+  if(testit()) Serial1.println("secure element found!");
+  else Serial1.println("secure element not found!");
+  // Initialize I2C bus.
+  dev_i2c.begin();
 
   Serial1.println("----------------");
+  // Intialize NFC module
+  if(nfcTag.begin(NULL) == 0) {
+    Serial1.println("NFC Init done!");
+  } else {
+    Serial1.println("NFC Init failed!");
+    while(1);
+  }
 
+  uint8_t pk[64]={0};
+  char keyprint[64];
+  String keystr("");
+  atcab_get_pubkey(0,pk);
+  
+  for (int i = 0; i < 64; i++){ 
+     static char tmp[2] = {0};
+     sprintf(tmp, "%02X",pk[i]);
+     String strtmp(tmp);
+     //Serial.print(String(tmp),HEX);
+     keystr += strtmp; 
+  }
+  
+  Serial1.print("\nPublic Key: ");
+  Serial1.println(keystr);
+  //client.print(keyprint);
+  keystr.toCharArray(keyprint,64);
+  if(nfcTag.writeTxt(keyprint) == false) Serial1.println("NFC Write Failed!");
+  else Serial1.println("NFC Write succesufl!"); 
+  
   // Initialize the WiFi module:
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial1.println("WiFi module not detected");
@@ -194,11 +230,12 @@ void setup() {
   Serial1.println("Connected.\nNetwork information:");
   printWifiStatus();
   server.begin();      // start the web server on port 80
-  Serial1.println("---------Diffie Hellman---------");
+  
 }
 
 
 void loop() {
+  
   
   unsigned int connection_status = modbus_update(packets);
   
@@ -245,14 +282,6 @@ void loop() {
         client.println();
         client.println("<!DOCTYPE HTML>");
         client.println("<html>");
-        client.println("Diffie Hellman: ");
-        // Serial Print the values
-        for (int i = 0; i < 32; i++){ 
-           uint8_t* tmp = secretASM();
-           Serial.print(tmp[i],HEX);
-           client.print(tmp[i],HEX);
-        }
-        Serial.println();
         client.println("<br />");    
         client.println(display_packet(packet1, "Consumption", "kWh"));
         client.println(display_packet(packet4, "Current", "A"));

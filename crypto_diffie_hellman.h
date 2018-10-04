@@ -1,3 +1,22 @@
-
+#include <atca_basic.h>
+#include <atca_cfgs.h>
+#include <atca_command.h>
+#include <atca_compiler.h>
+#include <atca_crypto_sw.h>
+#include <atca_crypto_sw_sha2.h>
+#include <atca_device.h>
+#include <atca_devtypes.h>
+#include <atca_hal.h>
+#include <atca_helpers.h>
+#include <atca_host.h>
+#include <atca_iface.h>
+#include <atca_start_config.h>
+#include <atca_start_iface.h>
+#include <atca_status.h>
+#include <cryptoauthlib.h>
+#include <hal_i2c_bitbang.h>
+#include <i2c_bitbang_at88ck9000.h>
+#include <sha2_routines.h>
 uint8_t* secretHost();
 uint8_t* secretASM();
+boolean testit();
